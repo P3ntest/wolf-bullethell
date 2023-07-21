@@ -1,6 +1,7 @@
 import {
   Component,
   ComponentUpdateProps,
+  Entity,
   Input,
   Prefab,
   ReactPositionalCamera,
@@ -9,13 +10,15 @@ import {
   RigidBody2D,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { Bodies } from "matter-js";
 import { HealthComponent } from "./util";
 import { ItemComponent } from "./item";
 import { ZombieController } from "./zombie";
 import { bulletPrefab } from "./bullet";
 import { getUpgradeLevel } from "./upgrades";
+import { gameOverScreen } from "./screens";
+import { bloodSplatPrefab } from "./blood";
 
 export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   player.addTag("player");
@@ -24,8 +27,9 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   player.addComponents(
     new Transform2D(),
     new RigidBody2D(Bodies.circle(0, 0, 30)),
-    new ReactRenderedComponent(
-      () => (
+    new ReactRenderedComponent(() => {
+      if (player.requireComponent(PlayerController).dead) return <div></div>;
+      return (
         <div
           style={{
             width: "60px",
@@ -37,9 +41,8 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
             transform: "rotate(-90deg)",
           }}
         />
-      ),
-      10
-    ),
+      );
+    }, 10),
     new HealthComponent(100),
     new PlayerController()
   );
@@ -82,6 +85,17 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   );
 });
 
+export function doGameOver(entity: Entity) {
+  if (!entity.scene.getEntityByTag("gameOverScreen")) {
+    gameOverScreen.instantiate(entity.scene, {});
+    bloodSplatPrefab.instantiate(entity.scene, {
+      x: entity.requireComponent(Transform2D).getGlobalPosition().x,
+      y: entity.requireComponent(Transform2D).getGlobalPosition().y,
+      size: 100 * 20,
+    });
+  }
+}
+
 export class PlayerController extends Component {
   get shootingDelay() {
     const shotsPerSecond =
@@ -90,7 +104,23 @@ export class PlayerController extends Component {
   }
   shootingTimer = 0;
 
+  dead: boolean = false;
+
   onUpdate(props: ComponentUpdateProps): void {
+    if (Input.getKeyDown("k"))
+      this.entity.requireComponent(HealthComponent).damage(10000);
+
+    if (this.entity.requireComponent(HealthComponent).health <= 0) {
+      this.dead = true;
+      doGameOver(this.entity);
+    }
+
+    if (this.dead) return;
+
+    const maxHealth =
+      100 + getUpgradeLevel(this.entity.scene, "maxPlayerHealth") * 25;
+    this.entity.requireComponent(HealthComponent).maxHealth = maxHealth;
+
     const rb = this.entity.requireComponent(RigidBody2D);
 
     const direction = new Vector2(
@@ -123,17 +153,50 @@ export class PlayerController extends Component {
     this.shootingTimer += props.deltaTime;
     const canShoot = this.shootingTimer > this.shootingDelay;
 
-    if (Input.getKey("mouse0") && canShoot) {
+    if ((Input.getKey("mouse0") || Input.getKey(" ")) && canShoot) {
       this.shootingTimer = 0;
-      this.shoot(worldMousePos);
+      const burst = 1 + getUpgradeLevel(this.entity.scene, "burst");
+      this.shoot(worldMousePos, burst);
     }
 
-    if (this.entity.requireComponent(HealthComponent).health <= 0) {
-      alert("You died!");
-    }
+    this.lifeTime += props.deltaTime;
+
+    // planned shots logic
+    const dueShots = this.plannedShots.filter((shot) => {
+      return shot.dueTime < this.lifeTime;
+    });
+    if (dueShots.length > 0) console.log(dueShots);
+
+    dueShots.forEach((shot) => {
+      this.shoot(shot.target, 1);
+    });
+
+    this.plannedShots = this.plannedShots.filter((shot) => {
+      return !dueShots.includes(shot);
+    });
   }
 
-  shoot(target: Vector2) {
+  lifeTime = 0;
+
+  plannedShots: {
+    dueTime: number;
+    target: Vector2;
+  }[] = [];
+
+  shoot(target: Vector2, burst: number) {
+    const burstAmount = burst;
+    const delayedShots = burstAmount - 1;
+    const burstDuration = 200;
+    const intervals = burstDuration / delayedShots;
+
+    if (delayedShots > 0)
+      for (let i = 0; i < delayedShots; i++) {
+        this.plannedShots.push({
+          dueTime: this.lifeTime + intervals * (i + 1),
+          target: target,
+        });
+      }
+
     const bulletSpawner = this.entity.children.find((entity) => {
       return entity.hasTag("bulletSpawner");
     })!;
@@ -148,7 +211,7 @@ export class PlayerController extends Component {
     });
   }
 
-  coins: number = 0;
+  coins: number = 20;
 
   onCollisionStart2D(other: Component): void {
     if (other.entity.hasTag("item")) {

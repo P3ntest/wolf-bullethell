@@ -5,7 +5,7 @@ import {
   ReactRenderedComponent,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 
 export const bloodSplatPrefab = new Prefab<{
   x: number;

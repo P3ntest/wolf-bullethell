@@ -1,16 +1,19 @@
 import {
   Component,
   ComponentUpdateProps,
+  Entity,
   Input,
   Prefab,
   ReactRenderedComponent,
   RigidBody2D,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { Bodies } from "matter-js";
 import { HealthComponent } from "./util";
 import { ItemComponent } from "./item";
+import { getUpgradeLevel } from "./upgrades";
+import { doGameOver } from "./player";
 
 export const dogPrefab = new Prefab<{}>("Dog", (dog, {}) => {
   dog.addTag("dog");
@@ -40,6 +43,7 @@ export const dogPrefab = new Prefab<{}>("Dog", (dog, {}) => {
 
 export class DogController extends Component {
   state: "following" | "staying" = "following";
+  target: Vector2 | null = null;
 
   followLogic(target: Vector2, deltaTime: number) {
     const transform = this.entity.requireComponent(Transform2D);
@@ -57,9 +61,9 @@ export class DogController extends Component {
       Vector2.fromAngle(transform.localRotation)
     );
 
-    transform.setRotation(
-      transform.localRotation + targetAngle * 0.01 * deltaTime
-    );
+    const newAngle = transform.localRotation + targetAngle * 0.01 * deltaTime;
+
+    if (!isNaN(newAngle)) transform.setRotation(newAngle % (Math.PI * 2));
   }
 
   onCollisionStart2D(other: Component): void {
@@ -73,47 +77,99 @@ export class DogController extends Component {
     }
   }
 
+  playerDistanceToBone(): number {
+    const bone = this.targetDisplay!.requireComponent(Transform2D);
+    const player = this.entity.scene
+      .getEntityByTag("player")!
+      .requireComponent(Transform2D);
+    return bone
+      .getGlobalPosition()
+      .subtract(player.getGlobalPosition())
+      .length();
+  }
+
+  targetDisplay: Entity | null = null;
+  onAttach(): void {
+    this.targetDisplay = this.entity.scene.createEntity();
+    this.targetDisplay.addComponents(
+      new Transform2D(),
+      new ReactRenderedComponent(() => {
+        const visible = this.target || this.playerDistanceToBone() > 10;
+        return (
+          <img
+            style={{
+              width: 30 + "px",
+              height: 30 + "px",
+              opacity: visible ? 1 : 0,
+            }}
+            src="https://www.pngplay.com/wp-content/uploads/2/Bone-PNG-Pic-Background.png"
+            alt=""
+          />
+        );
+      }, 1)
+    );
+  }
+
   onUpdate(props: ComponentUpdateProps): void {
+    const maxHealth =
+      40 + 25 * getUpgradeLevel(this.entity.scene, "doggyHealth");
+    this.entity.requireComponent(HealthComponent).maxHealth = maxHealth;
+
+    if (this.entity.requireComponent(HealthComponent).health <= 0) {
+      doGameOver(this.entity);
+      this.entity.destroy();
+    }
+
     const dogTreat = this.entity.scene
       .getAllEntities()
       .find(
         (entity) => entity.getComponent(ItemComponent)?.type === "dogTreat"
       );
+
     if (dogTreat) {
       this.followLogic(
         dogTreat.requireComponent(Transform2D).getGlobalPosition(),
         props.deltaTime
       );
-      return;
-    }
-
-    if (this.state === "following") {
-      const player = this.entity.scene.getAllEntities().find((entity) => {
-        return entity.hasTag("player");
-      })!;
-
-      const playerPos = player
+    } else if (this.target) {
+      this.followLogic(this.target, props.deltaTime);
+    } else {
+      const playerPos = this.entity.scene
+        .getEntityByTag("player")!
         .requireComponent(Transform2D)
         .getGlobalPosition();
 
-      const transform = this.entity.requireComponent(Transform2D);
-
-      const radius = 200;
-
       const distance = playerPos
-        .subtract(transform.getGlobalPosition())
+        .subtract(this.entity.requireComponent(Transform2D).getGlobalPosition())
         .length();
 
-      if (distance > radius) {
+      if (distance > 100) {
         this.followLogic(playerPos, props.deltaTime);
       }
     }
+
     if (Input.getKeyDown("e")) {
-      this.state = this.state === "following" ? "staying" : "following";
+      this.target = null;
     }
 
-    if (this.entity.requireComponent(HealthComponent).health <= 0) {
-      alert("Your dog died!");
+    if (Input.getKeyDown("q")) {
+      const pos = this.entity.scene.worldRenderer.transformScreenToWorld(
+        Vector2.fromObject(Input.getMousePosition())
+      );
+      this.target = pos;
+    }
+
+    const targetTransform = this.targetDisplay!.requireComponent(Transform2D);
+    const targetPos =
+      this.target ??
+      this.entity.scene
+        .getEntityByTag("player")!
+        .requireComponent(Transform2D)
+        .getGlobalPosition();
+    const currentPos = targetTransform.getGlobalPosition();
+    const path = targetPos.subtract(currentPos);
+    if (path.length() > 10) {
+      targetTransform.translate(path.normalize().multiplyScalar(10));
     }
   }
 }

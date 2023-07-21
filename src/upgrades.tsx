@@ -5,7 +5,7 @@ import {
   Scene,
   System,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { PlayerController } from "./player";
 
 export const Upgrade = [
@@ -13,26 +13,49 @@ export const Upgrade = [
     key: "fireRate",
     name: "Fire Rate",
     description: "Increases the speed at which you can shoot",
+    costMultiplier: 1.5,
   },
   {
-    key: "moveSpeed",
+    key: "maxPlayerHealth",
     name: "Max Health",
     description: "Increases your health",
+    costMultiplier: 0.8,
   },
   {
     key: "doggyHealth",
     name: "Max Doggy Health",
     description: "Increases your doggy's health",
+    costMultiplier: 0.8,
   },
   {
     key: "bulletPiercing",
     name: "Bullet Piercing",
     description: "Increases the piercing ability",
+    costMultiplier: 3,
   },
   {
     key: "bulletDamage",
     name: "Bullet Damage",
     description: "Increases the damage of your bullets",
+    costMultiplier: 1.1,
+  },
+  {
+    key: "friendlyFire",
+    name: "Lesser Friendly Fire",
+    description: "Reduces the damage your dog takes from your own bullets",
+    costMultiplier: 0.6,
+  },
+  {
+    key: "coinMultiplier",
+    name: "Coin Multiplier",
+    description: "Increases the amount of coins you get from killing enemies",
+    costMultiplier: 1,
+  },
+  {
+    key: "burst",
+    name: "Burst Shots",
+    description: "Shoots multiple shots at once",
+    costMultiplier: 10,
   },
 ];
 
@@ -65,8 +88,19 @@ export function getUpgradeLevel(
     .getUpgradeLevel(upgrade as keyof typeof Upgrade);
 }
 
-function getUpgradeCostAtLevel(currentLevel: number) {
-  return Math.floor(10 * Math.pow(1.5, currentLevel));
+function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
+  const currentLevel = getUpgradeLevel(scene, upgrade);
+  const totalUpgrades = Object.values(
+    scene.getEntityByTag("upgradeSystem")!.requireComponent(UpgradeSystem)
+      .upgradeLevels
+  ).reduce((a, b) => a + b, 0);
+
+  const upgradeData = Upgrade.find((u) => u.key === upgrade)!;
+
+  // Starts at 10. Increases by totalUpgrades and currentLevel. It should not go linear.
+  return Math.floor(
+    (10 + totalUpgrades * 2 + currentLevel * 5) * upgradeData.costMultiplier
+  );
 }
 
 export class UpgradeSystem extends Component {
@@ -109,7 +143,10 @@ export class UpgradeSystem extends Component {
               <div className="flex flex-col">
                 {Upgrade.map((upgrade) => {
                   const level = getUpgradeLevel(this.entity.scene, upgrade.key);
-                  const cost = getUpgradeCostAtLevel(level);
+                  const cost = getUpgradeCostAtLevel(
+                    this.entity.scene,
+                    upgrade.key as keyof typeof Upgrade
+                  );
                   return (
                     <button
                       key={upgrade.key}

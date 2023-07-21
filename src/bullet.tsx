@@ -6,7 +6,7 @@ import {
   RigidBody2D,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { Bodies } from "matter-js";
 import { HealthComponent } from "./util";
 import { ZombieController } from "./zombie";
@@ -63,11 +63,21 @@ export const bulletPrefab = new Prefab<BulletProps>(
             this.entity.destroy();
           }
           if (other.entity.hasComponent(HealthComponent)) {
+            if (other.entity.hasTag("friendly")) return;
+
+            const damage =
+              10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 3;
+
+            const multiplier = Math.max(
+              0,
+              other.entity.hasTag("dog")
+                ? 1 - getUpgradeLevel(this.entity.scene, "friendlyFire") * 0.1
+                : 1
+            );
+
             other.entity
               .requireComponent(HealthComponent)
-              .damage(
-                10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 5
-              );
+              .damage(damage * multiplier);
             this.context.pierced += 1;
             if (
               this.context.pierced >=
@@ -83,6 +93,6 @@ export const bulletPrefab = new Prefab<BulletProps>(
     );
 
     bullet.requireComponent(Transform2D).setPosition(position!);
-    bullet.requireComponent(RigidBody2D).setRotation(direction!.getAngle());
+    bullet.requireComponent(Transform2D).setRotation(direction!.getAngle());
   }
 );

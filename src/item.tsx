@@ -6,7 +6,7 @@ import {
   RigidBody2D,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { Bodies } from "matter-js";
 
 export const itemTypes = {

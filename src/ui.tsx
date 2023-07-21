@@ -4,13 +4,30 @@ import {
   ReactUIComponent,
   Scene,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
+import { ZombieSystem } from "./zombie";
 
 export const gameUiPrefab = new Prefab<{}>("GameUi", (entity, {}) => {
   entity.addTag("game-ui");
   entity.addTag("ui");
 
-  entity.addComponents();
+  entity.addComponents(
+    new ReactUIComponent(
+      () => {
+        const wave = entity.scene.getSystem(ZombieSystem)!.currentWave;
+        return (
+          <div className="text-white text-3xl font-bold drop-shadow">
+            Wave {wave}
+          </div>
+        );
+      },
+      {
+        position: {
+          anchor: "top-center",
+        },
+      }
+    )
+  );
 });
 
 export function showTitle(scene: Scene, title: string, subtitle?: string) {
@@ -31,6 +48,7 @@ export function showTitle(scene: Scene, title: string, subtitle?: string) {
               fontSize: "100px",
               color: "white",
             }}
+            className="drop-shadow"
           >
             {title}
           </h1>

@@ -2,6 +2,7 @@ import {
   Component,
   ComponentUpdateProps,
   Entity,
+  Input,
   Prefab,
   ReactRenderedComponent,
   RigidBody2D,
@@ -9,20 +10,22 @@ import {
   SystemUpdateProps,
   Transform2D,
   Vector2,
-} from "wolf-engine";
+} from "@p3ntest/wolf-engine";
 import { Bodies } from "matter-js";
 import { HealthComponent } from "./util";
 import { bloodSplatPrefab } from "./blood";
 import { itemPrefab } from "./item";
 import { showTitle } from "./ui";
-import { WolfPerformance } from "wolf-engine/src/Performance";
+import { WolfPerformance } from "@p3ntest/wolf-engine/src/Performance";
 import { spawnCoin } from "./coins";
+import { Upgrade, getUpgradeLevel, upgradeStat } from "./upgrades";
 
 interface ZombieProps {
   size: number;
   health: number;
   speed: number;
   damage: number;
+  color: string;
 }
 
 export const zombiePrefab = new Prefab<
@@ -30,15 +33,15 @@ export const zombiePrefab = new Prefab<
     healthMultiplier: number;
   }
 >("Zombie", (zombie, props) => {
-  const { size = 1, health = 20, speed = 1, damage = 10 } = props;
+  const { size = 1, health = 20, speed = 1, damage = 10, color = "0" } = props;
   zombie.addTag("zombie");
 
-  const pixelSize = 60 * size + "px";
+  const pixelSize = 60 * size;
 
   zombie.addComponents(
     new Transform2D(),
     new RigidBody2D(
-      Bodies.circle(0, 0, 30, {
+      Bodies.circle(0, 0, pixelSize / 2, {
         mass: 10 * size * size * size, // mass is proportional to size cubed (volume)
       })
     ),
@@ -47,13 +50,13 @@ export const zombiePrefab = new Prefab<
       () => (
         <div
           style={{
-            width: pixelSize,
-            height: pixelSize,
-            borderRadius: "0px",
+            width: pixelSize + "px",
+            height: pixelSize + "px",
             backgroundImage:
               "url('https://opengameart.org/sites/default/files/export_move.gif')",
             backgroundSize: "cover",
             transform: "rotate(-90deg)",
+            filter: `hue-rotate(${color})`,
           }}
         />
       ),
@@ -64,6 +67,7 @@ export const zombiePrefab = new Prefab<
       health,
       speed,
       damage,
+      color,
     })
   );
 });
@@ -148,6 +152,9 @@ export class ZombieController extends Component {
       .length();
     if (distance < 100 && this.attackCoolDown <= 0) {
       this.attackCoolDown = 1000;
+      const wave = getWave(
+        this.entity.scene.getSystem(ZombieSystem)!.currentWave
+      );
       target.requireComponent(HealthComponent).damage(this.props.damage);
     }
   }
@@ -181,11 +188,26 @@ export class ZombieController extends Component {
         type: "healthPack",
       });
 
-    const coinAmount = Math.floor(Math.random() * 5 * this.props.size) + 1;
+    const coinUpgradeLevel = getUpgradeLevel(
+      this.entity.scene,
+      "coinMultiplier"
+    );
+    let coinAmount = Math.round(
+      this.props.size * (1 + Math.random() * (1 + coinUpgradeLevel * 2))
+    );
+
+    const maxCoins = 4;
+    let coinValue = 1;
+    if (coinAmount > maxCoins) {
+      coinValue = coinAmount / maxCoins;
+      coinAmount = maxCoins;
+    }
+
     for (let i = 0; i < coinAmount; i++) {
       spawnCoin(
         this.entity.scene,
-        this.entity.requireComponent(Transform2D).getGlobalPosition()
+        this.entity.requireComponent(Transform2D).getGlobalPosition(),
+        coinValue
       );
     }
 
@@ -225,9 +247,21 @@ export class ZombieSystem extends System {
   currentWaveSpawned: number = 0;
 
   waveRunning: boolean = false;
-  waveCountdown: number = 0;
+  waveCountdown: number = 5000;
 
   onUpdate(props: SystemUpdateProps): void {
+    // Performance debug
+    if (Input.getKeyDown("i")) {
+      this.currentWave = 20;
+      for (let i = 0; i < 20; i++) {
+        upgradeStat(this.scene, "coinMultiplier");
+        upgradeStat(this.scene, "maxPlayerHealth");
+        upgradeStat(this.scene, "bulletDamage");
+        upgradeStat(this.scene, "fireRate");
+        upgradeStat(this.scene, "bulletPiercing");
+      }
+    }
+
     WolfPerformance.start("zombie-system");
     if (!this.waveRunning) {
       this.waveCountdown -= props.deltaTime;
@@ -289,7 +323,7 @@ export class ZombieSystem extends System {
 
     const wave = getWave(this.currentWave);
 
-    const healthMultiplier = 1 + Math.pow(this.currentWave - 1, 0.5) * 0.1;
+    const healthMultiplier = wave.healthMultiplier;
 
     const zombie = zombiePrefab.instantiate(this.scene, {
       ...getRandomZombie(wave.zombieWeights),
@@ -309,18 +343,21 @@ const zombieTypes: { [key: string]: ZombieProps } = {
     health: 20,
     speed: 0.7,
     damage: 10,
+    color: "0",
   },
   giant: {
     size: 4,
     health: 100,
     speed: 0.2,
     damage: 100,
+    color: "0",
   },
   fast: {
     size: 0.7,
     health: 10,
     speed: 2,
     damage: 5,
+    color: "190deg",
   },
 };
 
@@ -342,19 +379,25 @@ function getRandomZombie(weights: {
 
 function getWave(wave: number): Wave {
   wave = wave - 1;
-  const maxZombies = 10 + Math.pow(wave, 2) * 0.5;
+  const maxZombies = 10 + wave * 2;
   const zombieWeights = {
-    normal: 1 + wave * 0.1,
-    giant: 0.1 * wave,
-    fast: 0.5 * wave,
+    normal: 3 + wave * 0.1,
+    giant: 0.2 * wave,
+    fast: 0.1 * wave,
   };
 
-  const zombieSpawnInterval = Math.max(1000 - wave * 100, 10);
+  const zombieSpawnInterval = Math.max(1000 - wave * 100, 300);
+
+  const damageMultiplier = 1 + wave * 0.1;
+
+  const healthMultiplier = 1 + wave * 0.1;
 
   return {
     maxZombies,
     zombieWeights,
     zombieSpawnInterval,
+    damageMultiplier,
+    healthMultiplier,
   };
 }
 
@@ -362,4 +405,6 @@ type Wave = {
   maxZombies: number;
   zombieWeights: { [key: keyof typeof zombieTypes]: number };
   zombieSpawnInterval: number;
+  damageMultiplier: number;
+  healthMultiplier: number;
 };
