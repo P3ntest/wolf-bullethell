@@ -29,7 +29,7 @@ export const restartGame = () => {
 
   scene = new Scene();
   scene.setWorldRenderer(
-    new ReactPositionalRenderer(document.getElementById("game")!)
+    new ReactPositionalRenderer(document.getElementById("game")!, "#222233")
   );
   scene.addRenderer(new ReactUIRenderer(document.getElementById("ui")!));
   // scene.addRenderer(new DebugRenderer(document.getElementById("debug")!));

@@ -386,7 +386,8 @@ function getWave(wave: number): Wave {
     fast: 0.1 * wave,
   };
 
-  const zombieSpawnInterval = Math.max(1000 - wave * 100, 300);
+  // const timeInWave = maxZombies * 2000;
+  const zombieSpawnInterval = 1000;
 
   const damageMultiplier = 1 + wave * 0.1;
 

@@ -54,24 +54,14 @@ export const worldPrefab = new Prefab<{}>("World", (entity, {}) => {
     y: 0,
   });
 
-  enemySpawnPointPrefab.instantiate(entity, {
-    x: 1000,
-    y: 0,
-  });
-
-  enemySpawnPointPrefab.instantiate(entity, {
-    x: -1000,
-    y: 0,
-  });
-
-  enemySpawnPointPrefab.instantiate(entity, {
-    x: 0,
-    y: 1000,
-  });
-
-  enemySpawnPointPrefab.instantiate(entity, {
-    x: 0,
-    y: -1000,
+  [1000, -1000, 0, -500, 500].forEach((x) => {
+    [1000, -1000, 0, -500, 500].forEach((y) => {
+      if (Math.abs(x) < 1000 && Math.abs(y) < 1000) return;
+      enemySpawnPointPrefab.instantiate(entity, {
+        x,
+        y,
+      });
+    });
   });
 });
 
