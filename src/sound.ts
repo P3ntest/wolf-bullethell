@@ -8,29 +8,34 @@ import waveStart from "./assets/waveStart.wav";
 import hurt from "./assets/hurt.flac";
 import positive from "./assets/positive.ogg";
 const Sounds = {
-  Shot: new Audio(shot),
-  Splat: new Audio(splat),
-  Impact: new Audio(impact),
-  ZombieDeath: new Audio(zombieDeath),
-  ZombieBig: new Audio(zombieBig),
-  WaveStart: new Audio(waveStart),
-  Bark: new Audio(bark),
-  Hurt: new Audio(hurt),
-  Positive: new Audio(positive),
+  Shot: shot,
+  Splat: splat,
+  Impact: impact,
+  ZombieDeath: zombieDeath,
+  ZombieBig: zombieBig,
+  WaveStart: waveStart,
+  Bark: bark,
+  Hurt: hurt,
+  Positive: positive,
 };
 
-Sounds.Shot.volume = 0.2;
-Sounds.Splat.volume = 0.2;
-Sounds.Impact.volume = 0.1;
-Sounds.ZombieDeath.volume = 0.2;
-Sounds.ZombieBig.volume = 0.2;
-Sounds.WaveStart.volume = 0.3;
-Sounds.Bark.volume = 1;
-Sounds.Hurt.volume = 0.2;
-Sounds.Positive.volume = 0.32;
+const defaultVolume: { [key: string]: number } = {};
 
-export function playSound(sound: keyof typeof Sounds) {
-  Sounds[sound].play();
+defaultVolume["Shot"] = 0.2;
+defaultVolume["Splat"] = 0.2;
+defaultVolume["Impact"] = 0.1;
+defaultVolume["ZombieDeath"] = 0.2;
+defaultVolume["ZombieBig"] = 0.2;
+defaultVolume["WaveStart"] = 0.3;
+defaultVolume["Bark"] = 1;
+defaultVolume["Hurt"] = 0.2;
+defaultVolume["Positive"] = 0.32;
+
+export function playSound(sound: keyof typeof Sounds, volume?: number) {
+  volume = volume ?? defaultVolume[sound] ?? 0.1;
+  const audio = new Audio(Sounds[sound]);
+  audio.volume = volume;
+  audio.play();
 }
 
 import monster1 from "./assets/growls/monster/monster.1.ogg";
