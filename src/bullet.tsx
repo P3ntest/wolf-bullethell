@@ -64,6 +64,7 @@ export const bulletPrefab = new Prefab<BulletProps>(
           if (other.entity.hasTag("wall")) {
             this.entity.destroy();
           }
+          if (other.entity.hasTag("player")) return;
           if (other.entity.hasComponent(HealthComponent)) {
             // if (other.entity.hasTag("friendly")) return;wd
 
