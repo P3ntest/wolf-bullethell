@@ -60,7 +60,7 @@ export const Upgrade = [
     key: "burst",
     name: "Burst Shots",
     description: "Shoot multiple shots at once",
-    costMultiplier: 3,
+    costMultiplier: 4,
     selfMultiplier: 3,
   },
 ];

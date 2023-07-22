@@ -445,7 +445,7 @@ function getRandomZombie(weights: {
 function getWave(wave: number): Wave {
   wave = wave - 1;
   const maxZombies = Math.floor(
-    10 + Math.pow(wave, 1.2) * (3 * getDifficultyMultiplier(1))
+    10 + Math.pow(wave, 1.4) * (3 * getDifficultyMultiplier(1))
   );
   const zombieWeights = {
     normal: 3 + wave * 0.2,
@@ -462,7 +462,7 @@ function getWave(wave: number): Wave {
     getDifficultyMultiplier(0.7) + Math.pow(wave, 1.1) * 0.1;
 
   const healthMultiplier =
-    getDifficultyMultiplier(0.7) + Math.pow(wave, 1.4) * 0.3;
+    getDifficultyMultiplier(0.7) + Math.pow(wave, 1.6) * 0.3;
 
   return {
     maxZombies,
