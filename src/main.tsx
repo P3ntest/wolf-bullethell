@@ -35,12 +35,12 @@ function difficultyNumber() {
   switch (gameDifficulty) {
     case "jeffrey":
     case "easy":
-      return 0.5;
+      return 0.75;
     case "normal":
       return 1;
     case "hard":
     case "adonis":
-      return 2;
+      return 1.4;
   }
 }
 
