@@ -214,7 +214,8 @@ export class ZombieController extends Component {
       "coinMultiplier"
     );
     let coinAmount = Math.round(
-      this.props.size * (1 + Math.random() * (1 + coinUpgradeLevel * 2))
+      Math.pow(this.props.size, 2) *
+        (1 + Math.random() * (1 + coinUpgradeLevel * 2))
     );
 
     const maxCoins = 4;
@@ -443,21 +444,25 @@ function getRandomZombie(weights: {
 
 function getWave(wave: number): Wave {
   wave = wave - 1;
-  const maxZombies = Math.floor(10 + wave * (3 * getDifficultyMultiplier(1)));
+  const maxZombies = Math.floor(
+    10 + Math.pow(wave, 1.2) * (3 * getDifficultyMultiplier(1))
+  );
   const zombieWeights = {
     normal: 3 + wave * 0.2,
     giant: 0.2 * wave,
     fast: 0.1 * wave,
     mutant: 0.2 * wave,
-    boss: 0.01 * wave,
+    boss: 0.01 * Math.pow(wave, 1.7),
   };
 
   // const timeInWave = maxZombies * 2000;
   const zombieSpawnInterval = 1000 * getDifficultyMultiplier(-2);
 
-  const damageMultiplier = getDifficultyMultiplier(0.7) + wave * 0.1;
+  const damageMultiplier =
+    getDifficultyMultiplier(0.7) + Math.pow(wave, 1.1) * 0.1;
 
-  const healthMultiplier = getDifficultyMultiplier(0.7) + wave * 0.1;
+  const healthMultiplier =
+    getDifficultyMultiplier(0.7) + Math.pow(wave, 1.4) * 0.3;
 
   return {
     maxZombies,

@@ -20,13 +20,14 @@ export const Upgrade = [
     key: "maxPlayerHealth",
     name: "Max Health",
     description: "Increases your health",
-    costMultiplier: 0.8,
+    costMultiplier: 0,
   },
   {
     key: "doggyHealth",
     name: "Max Doggy Health",
     description: "Increases your doggy's health",
     costMultiplier: 0.8,
+    selfMultiplier: 0,
   },
   {
     key: "bulletPiercing",
@@ -34,6 +35,7 @@ export const Upgrade = [
     description:
       "Increases the ability for your bullets to go through multiple enemies",
     costMultiplier: 2,
+    selfMultiplier: 1.8,
   },
   {
     key: "bulletDamage",
@@ -52,12 +54,14 @@ export const Upgrade = [
     name: "Coin Multiplier",
     description: "Increases the amount of coins you get from killing enemies",
     costMultiplier: 1,
+    selfMultiplier: 2,
   },
   {
     key: "burst",
     name: "Burst Shots",
     description: "Shoot multiple shots at once",
     costMultiplier: 3,
+    selfMultiplier: 3,
   },
 ];
 
@@ -99,9 +103,13 @@ function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
 
   const upgradeData = Upgrade.find((u) => u.key === upgrade)!;
 
+  let selfMultiplier = upgradeData.selfMultiplier ?? 1;
+
   // Starts at 10. Increases by totalUpgrades and currentLevel. It should not go linear.
   return Math.floor(
-    (10 + totalUpgrades * 2 * getDifficultyMultiplier(1) + currentLevel * 5) *
+    (10 +
+      totalUpgrades * 2 * getDifficultyMultiplier(1) +
+      currentLevel * 5 * selfMultiplier) *
       upgradeData.costMultiplier *
       getDifficultyMultiplier(0.5)
   );
