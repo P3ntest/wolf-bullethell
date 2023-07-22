@@ -14,7 +14,8 @@ export const Upgrade = [
     key: "fireRate",
     name: "Fire Rate",
     description: "Increases the speed at which you can shoot",
-    costMultiplier: 1.5,
+    costMultiplier: 1.8,
+    selfMultiplier: 2.5,
   },
   {
     key: "maxPlayerHealth",
@@ -55,14 +56,14 @@ export const Upgrade = [
     name: "Coin Multiplier",
     description: "Increases the amount of coins you get from killing enemies",
     costMultiplier: 1,
-    selfMultiplier: 2,
+    selfMultiplier: 4,
   },
   {
     key: "burst",
     name: "Burst Shots",
     description: "Shoot multiple shots at once",
     costMultiplier: 4,
-    selfMultiplier: 10,
+    selfMultiplier: 50,
   },
 ];
 

@@ -227,7 +227,7 @@ export class PlayerController extends Component {
     });
   }
 
-  coins: number = 20;
+  coins: number = 20 * getDifficultyMultiplier(-1);
 
   onCollisionStart2D(other: Component): void {
     if (other.entity.hasTag("item")) {
