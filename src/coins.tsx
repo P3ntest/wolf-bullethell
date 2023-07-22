@@ -7,6 +7,7 @@ import {
   Vector2,
 } from "@p3ntest/wolf-engine";
 import { PlayerController } from "./player";
+import { playCoinSound } from "./sound";
 
 export function spawnCoin(scene: Scene, position: Vector2, value: number) {
   const coin = scene.createEntity();
@@ -80,6 +81,7 @@ export class CoinComponent extends Component {
 
     const scale = 1 + Math.pow(this.value - 1, 0.3) * 0.5;
     if (distanceToPlayer < 30 * scale) {
+      playCoinSound();
       this.entity.destroy();
       this.entity.scene
         .getEntityByTag("player")!

@@ -31,7 +31,7 @@ export const Upgrade = [
     key: "bulletPiercing",
     name: "Bullet Piercing",
     description: "Increases the piercing ability",
-    costMultiplier: 3,
+    costMultiplier: 2,
   },
   {
     key: "bulletDamage",
@@ -55,7 +55,7 @@ export const Upgrade = [
     key: "burst",
     name: "Burst Shots",
     description: "Shoots multiple shots at once",
-    costMultiplier: 10,
+    costMultiplier: 3,
   },
 ];
 

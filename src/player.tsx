@@ -19,6 +19,7 @@ import { bulletPrefab } from "./bullet";
 import { getUpgradeLevel } from "./upgrades";
 import { gameOverScreen } from "./screens";
 import { bloodSplatPrefab } from "./blood";
+import { playSound } from "./sound";
 
 export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   player.addTag("player");
@@ -184,6 +185,7 @@ export class PlayerController extends Component {
   }[] = [];
 
   shoot(target: Vector2, burst: number) {
+    playSound("Shot");
     const burstAmount = burst;
     const delayedShots = burstAmount - 1;
     const burstDuration = 200;

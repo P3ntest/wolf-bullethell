@@ -11,6 +11,7 @@ import { Bodies } from "matter-js";
 import { HealthComponent } from "./util";
 import { ZombieController } from "./zombie";
 import { getUpgradeLevel } from "./upgrades";
+import { playSound } from "./sound";
 
 type BulletProps = { direction: Vector2; position: Vector2 };
 export const bulletPrefab = new Prefab<BulletProps>(
@@ -63,7 +64,7 @@ export const bulletPrefab = new Prefab<BulletProps>(
             this.entity.destroy();
           }
           if (other.entity.hasComponent(HealthComponent)) {
-            if (other.entity.hasTag("friendly")) return;
+            // if (other.entity.hasTag("friendly")) return;wd
 
             const damage =
               10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 3;
@@ -79,6 +80,13 @@ export const bulletPrefab = new Prefab<BulletProps>(
               .requireComponent(HealthComponent)
               .damage(damage * multiplier);
             this.context.pierced += 1;
+
+            if (other.entity.hasTag("dog")) {
+              playSound("Bark");
+            }
+
+            playSound("Impact");
+
             if (
               this.context.pierced >=
               getUpgradeLevel(this.entity.scene, "bulletPiercing") + 1

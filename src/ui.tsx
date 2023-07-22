@@ -7,6 +7,8 @@ import {
 } from "@p3ntest/wolf-engine";
 import { ZombieSystem } from "./zombie";
 
+let shownControls = false;
+
 export const gameUiPrefab = new Prefab<{}>("GameUi", (entity, {}) => {
   entity.addTag("game-ui");
   entity.addTag("ui");
@@ -14,10 +16,27 @@ export const gameUiPrefab = new Prefab<{}>("GameUi", (entity, {}) => {
   entity.addComponents(
     new ReactUIComponent(
       () => {
-        const wave = entity.scene.getSystem(ZombieSystem)!.currentWave;
+        const c = entity.scene.getSystem(ZombieSystem)!;
+        const wave = c.currentWave;
+
+        let waveText = "Waiting for next wave...";
+
+        const zombies = entity.scene.getEntitiesByTag("zombie").length;
+        if (c.waveRunning) {
+          waveText =
+            zombies === 1
+              ? "1 Zombie Remaining"
+              : `${zombies} Zombies Remaining`;
+        }
+
         return (
-          <div className="text-white text-3xl font-bold drop-shadow">
-            Wave {wave}
+          <div className="flex flex-col items-center">
+            <div className="text-white text-4xl font-bold drop-shadow">
+              Wave {wave}
+            </div>
+            <div className="text-white text-2xl font-bold drop-shadow">
+              {waveText}
+            </div>
           </div>
         );
       },
@@ -27,6 +46,46 @@ export const gameUiPrefab = new Prefab<{}>("GameUi", (entity, {}) => {
         },
       }
     )
+  );
+
+  entity.createEntity().addComponents(
+    new ReactUIComponent(
+      () => {
+        return (
+          <div className="text-white text-3xl font-bold drop-shadow p-3 bg-gray-600">
+            <h1>Controls</h1>
+            <p>WASD - Move</p>
+            <p>Q - Throw Bone</p>
+            <p>E - Retrieve Bone</p>
+            <p>Left Click - Shoot</p>
+          </div>
+        );
+      },
+      {
+        position: {
+          anchor: "center-left",
+        },
+      }
+    ),
+    Component.fromMethods<{
+      lifetime: number;
+    }>({
+      onAttach() {
+        if (shownControls) {
+          this.entity.destroy();
+        }
+        shownControls = true;
+      },
+      setupContext() {
+        this.context.lifetime = 0;
+      },
+      onUpdate({ deltaTime }) {
+        this.context.lifetime += deltaTime;
+        if (this.context.lifetime > 8000) {
+          this.entity.destroy();
+        }
+      },
+    })
   );
 });
 
@@ -48,7 +107,7 @@ export function showTitle(scene: Scene, title: string, subtitle?: string) {
               fontSize: "100px",
               color: "white",
             }}
-            className="drop-shadow"
+            className="drop-shadow-xl font-black uppercase"
           >
             {title}
           </h1>

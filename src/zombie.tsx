@@ -19,6 +19,7 @@ import { showTitle } from "./ui";
 import { WolfPerformance } from "@p3ntest/wolf-engine/src/Performance";
 import { spawnCoin } from "./coins";
 import { Upgrade, getUpgradeLevel, upgradeStat } from "./upgrades";
+import { playSound, playZombieSound } from "./sound";
 
 interface ZombieProps {
   size: number;
@@ -155,7 +156,20 @@ export class ZombieController extends Component {
       const wave = getWave(
         this.entity.scene.getSystem(ZombieSystem)!.currentWave
       );
-      target.requireComponent(HealthComponent).damage(this.props.damage);
+      target
+        .requireComponent(HealthComponent)
+        .damage(this.props.damage * wave.damageMultiplier);
+      if (target.hasTag("dog")) {
+        playSound("Bark");
+      } else {
+        playSound("Hurt");
+      }
+      playSound("Impact");
+    }
+
+    // Play sound at random intervals
+    if (Math.random() * props.deltaTime < 0.01) {
+      this.makeSound();
     }
   }
 
@@ -175,6 +189,9 @@ export class ZombieController extends Component {
   }
 
   die() {
+    playSound("ZombieDeath");
+    playSound("Splat");
+
     bloodSplatPrefab.instantiate(this.entity.scene, {
       x: this.entity.requireComponent(Transform2D).getGlobalPosition().x,
       y: this.entity.requireComponent(Transform2D).getGlobalPosition().y,
@@ -230,6 +247,18 @@ export class ZombieController extends Component {
       this._knockBack = force.multiplyScalar(0.01);
     }
   }
+
+  makeSound() {
+    if (this.props.size > 2) {
+      playSound("ZombieBig");
+    } else {
+      playZombieSound();
+    }
+  }
+
+  onAttach(): void {
+    this.makeSound();
+  }
 }
 
 export const enemySpawnPointPrefab = new Prefab<{
@@ -272,6 +301,7 @@ export class ZombieSystem extends System {
         this.currentWaveSpawned = 0;
         console.log("Wave", this.currentWave);
         showTitle(this.scene, `Wave ${this.currentWave}`);
+        playSound("WaveStart");
       }
     } else {
       const wave = getWave(this.currentWave);
@@ -287,6 +317,7 @@ export class ZombieSystem extends System {
         this.waveRunning = false;
         this.waveCountdown = 5000;
         showTitle(this.scene, `Wave ${this.currentWave} Complete`);
+        playSound("Positive");
       }
     }
     WolfPerformance.end("zombie-system");
