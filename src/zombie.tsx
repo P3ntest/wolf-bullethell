@@ -214,7 +214,7 @@ export class ZombieController extends Component {
       "coinMultiplier"
     );
     let coinAmount = Math.round(
-      Math.pow(this.props.size, 2) *
+      Math.pow(this.props.size, 1.4) *
         (1 + Math.random() * (1 + coinUpgradeLevel * 2))
     );
 
