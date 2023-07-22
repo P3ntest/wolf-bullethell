@@ -236,6 +236,19 @@ export class ZombieController extends Component {
         type: "dogTreat",
       });
     }
+    const controller = this.entity.scene.getSystem(ZombieSystem)!;
+
+    const dogExists = this.entity.scene.getEntityByTag("dog")!!;
+
+    const scoreGained = Math.round(
+      this.props.size *
+        (1 + controller.currentWave * 0.2) *
+        getDifficultyMultiplier(1.1) *
+        (dogExists ? 1 : 0.5) *
+        100
+    );
+
+    controller.currentScore += scoreGained;
 
     this.entity.destroy();
   }
@@ -275,6 +288,8 @@ export class ZombieSystem extends System {
   currentWave: number = 0;
   spawnTimer: number = 0;
   currentWaveSpawned: number = 0;
+
+  currentScore: number = 0;
 
   waveRunning: boolean = false;
   waveCountdown: number = 5000;

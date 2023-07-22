@@ -6,6 +6,7 @@ import {
   Vector2,
 } from "@p3ntest/wolf-engine";
 import { ZombieSystem } from "./zombie";
+import { gameDifficulty } from "./main";
 
 let shownControls = false;
 
@@ -43,6 +44,27 @@ export const gameUiPrefab = new Prefab<{}>("GameUi", (entity, {}) => {
       {
         position: {
           anchor: "top-center",
+        },
+      }
+    ),
+    new ReactUIComponent(
+      () => {
+        const c = entity.scene.getSystem(ZombieSystem)!;
+
+        return (
+          <div className="flex flex-col items-start px-2">
+            <div className="text-white text-3xl font-bold drop-shadow">
+              Score: {c.currentScore}
+            </div>
+            <div className="text-lg text-gray-200 uppercase font-bold drop-shadow">
+              {gameDifficulty}
+            </div>
+          </div>
+        );
+      },
+      {
+        position: {
+          anchor: "top-left",
         },
       }
     )
