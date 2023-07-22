@@ -21,13 +21,14 @@ export const Upgrade = [
     name: "Max Health",
     description: "Increases your health",
     costMultiplier: 0.9,
+    selfMultiplier: 0.9,
   },
   {
     key: "doggyHealth",
     name: "Max Doggy Health",
     description: "Increases your doggy's health",
     costMultiplier: 0.8,
-    selfMultiplier: 0,
+    selfMultiplier: 0.9,
   },
   {
     key: "bulletPiercing",
