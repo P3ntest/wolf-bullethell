@@ -80,7 +80,7 @@ export const restartGame = () => {
   scene.start();
 };
 
-enablePerformanceLogging();
+// enablePerformanceLogging();
 
 function showMainMenu() {
   createRoot(document.getElementById("ui")!).render(<MainMenu />);

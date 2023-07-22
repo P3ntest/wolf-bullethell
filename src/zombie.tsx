@@ -43,7 +43,7 @@ export const zombiePrefab = new Prefab<
   zombie.addComponents(
     new Transform2D(),
     new RigidBody2D(
-      Bodies.circle(0, 0, pixelSize / 2, {
+      Bodies.circle(0, 0, (pixelSize / 2) * 0.8, {
         mass: 10 * size * size * size, // mass is proportional to size cubed (volume)
       })
     ),
@@ -152,7 +152,10 @@ export class ZombieController extends Component {
       .getGlobalPosition()
       .subtract(zombiePos)
       .length();
-    if (distance < 100 && this.attackCoolDown <= 0) {
+    if (
+      distance < 30 * this.props.size * 0.8 + 40 &&
+      this.attackCoolDown <= 0
+    ) {
       this.attackCoolDown = 1000;
       const wave = getWave(
         this.entity.scene.getSystem(ZombieSystem)!.currentWave
@@ -394,10 +397,24 @@ const zombieTypes: { [key: string]: ZombieProps } = {
   },
   giant: {
     size: 4,
-    health: 100,
-    speed: 0.2,
+    health: 150,
+    speed: 0.4,
     damage: 100,
     color: "0",
+  },
+  boss: {
+    size: 8,
+    health: 500,
+    speed: 0.15,
+    damage: 1000,
+    color: "0",
+  },
+  mutant: {
+    size: 2,
+    health: 40,
+    speed: 0.75,
+    damage: 10,
+    color: "70deg",
   },
   fast: {
     size: 0.7,
@@ -428,9 +445,11 @@ function getWave(wave: number): Wave {
   wave = wave - 1;
   const maxZombies = Math.floor(10 + wave * (3 * getDifficultyMultiplier(1)));
   const zombieWeights = {
-    normal: 3 + wave * 0.1,
+    normal: 3 + wave * 0.2,
     giant: 0.2 * wave,
     fast: 0.1 * wave,
+    mutant: 0.2 * wave,
+    boss: 0.01 * wave,
   };
 
   // const timeInWave = maxZombies * 2000;

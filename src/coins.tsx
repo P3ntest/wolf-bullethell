@@ -108,6 +108,10 @@ export class CoinComponent extends Component {
         })[0];
 
       if (nearestOtherCoin) {
+        const distanceToNearestCoin = this.distanceTo(
+          nearestOtherCoin.requireComponent(Transform2D).getGlobalPosition()
+        );
+        if (distanceToNearestCoin > 500) return;
         this.entity.destroy();
         nearestOtherCoin.requireComponent(CoinComponent).value += this.value;
       }

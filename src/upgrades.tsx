@@ -107,6 +107,7 @@ function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
   );
 }
 
+export let mouseOnUi = false;
 export class UpgradeSystem extends Component {
   upgradeLevels: Record<string, number> = {
     // fireRate: 10,
@@ -136,7 +137,17 @@ export class UpgradeSystem extends Component {
             .requireComponent(PlayerController).coins;
 
           return (
-            <div className="text-white flex flex-col items-stretch">
+            <div
+              className="text-white flex flex-col items-stretch"
+              onMouseEnter={() => {
+                mouseOnUi = true;
+                console.log("mouse on ui");
+              }}
+              onMouseLeave={() => {
+                mouseOnUi = false;
+                console.log("mouse off ui");
+              }}
+            >
               <h1 className="font-xl flex flex-row justify-between items-center p-4 bg-gray-400">
                 <span className="text-xl uppercase font-bold">Upgrades</span>
                 <span className="flex flex-row gap-2 items-center font-bold">

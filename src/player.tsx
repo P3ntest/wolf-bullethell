@@ -16,7 +16,7 @@ import { HealthComponent } from "./util";
 import { ItemComponent } from "./item";
 import { ZombieController } from "./zombie";
 import { bulletPrefab } from "./bullet";
-import { getUpgradeLevel } from "./upgrades";
+import { getUpgradeLevel, mouseOnUi } from "./upgrades";
 import { gameOverScreen } from "./screens";
 import { bloodSplatPrefab } from "./blood";
 import { playSound } from "./sound";
@@ -164,7 +164,11 @@ export class PlayerController extends Component {
     this.shootingTimer += props.deltaTime;
     const canShoot = this.shootingTimer > this.shootingDelay;
 
-    if ((Input.getKey("mouse0") || Input.getKey(" ")) && canShoot) {
+    if (
+      (Input.getKey("mouse0") || Input.getKey(" ")) &&
+      canShoot &&
+      !mouseOnUi
+    ) {
       this.shootingTimer = 0;
       const burst = 1 + getUpgradeLevel(this.entity.scene, "burst");
       this.shoot(worldMousePos, burst);
