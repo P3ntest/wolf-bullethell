@@ -12,6 +12,7 @@ import { HealthComponent } from "./util";
 import { ZombieController } from "./zombie";
 import { getUpgradeLevel } from "./upgrades";
 import { playSound } from "./sound";
+import { getDifficultyMultiplier } from "./main";
 
 type BulletProps = { direction: Vector2; position: Vector2 };
 export const bulletPrefab = new Prefab<BulletProps>(
@@ -67,7 +68,8 @@ export const bulletPrefab = new Prefab<BulletProps>(
             // if (other.entity.hasTag("friendly")) return;wd
 
             const damage =
-              10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 3;
+              (10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 3) *
+              getDifficultyMultiplier(other.entity.hasTag("dog") ? 0.7 : -0.7);
 
             const multiplier = Math.max(
               0,

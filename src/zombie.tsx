@@ -20,6 +20,7 @@ import { WolfPerformance } from "@p3ntest/wolf-engine/src/Performance";
 import { spawnCoin } from "./coins";
 import { Upgrade, getUpgradeLevel, upgradeStat } from "./upgrades";
 import { playSound, playZombieSound } from "./sound";
+import { getDifficultyMultiplier } from "./main";
 
 interface ZombieProps {
   size: number;
@@ -198,7 +199,7 @@ export class ZombieController extends Component {
       size: 100 * this.props.size,
     });
 
-    if (Math.random() < 0.1)
+    if (Math.random() < 0.1 * getDifficultyMultiplier(-1))
       itemPrefab.instantiate(this.entity.scene, {
         x: this.entity.requireComponent(Transform2D).getGlobalPosition().x,
         y: this.entity.requireComponent(Transform2D).getGlobalPosition().y,
@@ -410,7 +411,7 @@ function getRandomZombie(weights: {
 
 function getWave(wave: number): Wave {
   wave = wave - 1;
-  const maxZombies = 10 + wave * 2;
+  const maxZombies = Math.floor(10 + wave * (3 * getDifficultyMultiplier(1)));
   const zombieWeights = {
     normal: 3 + wave * 0.1,
     giant: 0.2 * wave,
@@ -418,11 +419,11 @@ function getWave(wave: number): Wave {
   };
 
   // const timeInWave = maxZombies * 2000;
-  const zombieSpawnInterval = 1000;
+  const zombieSpawnInterval = 1000 * getDifficultyMultiplier(-2);
 
-  const damageMultiplier = 1 + wave * 0.1;
+  const damageMultiplier = getDifficultyMultiplier(0.7) + wave * 0.1;
 
-  const healthMultiplier = 1 + wave * 0.1;
+  const healthMultiplier = getDifficultyMultiplier(0.7) + wave * 0.1;
 
   return {
     maxZombies,

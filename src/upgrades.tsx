@@ -7,6 +7,7 @@ import {
   Vector2,
 } from "@p3ntest/wolf-engine";
 import { PlayerController } from "./player";
+import { gameDifficulty, getDifficultyMultiplier } from "./main";
 
 export const Upgrade = [
   {
@@ -30,7 +31,8 @@ export const Upgrade = [
   {
     key: "bulletPiercing",
     name: "Bullet Piercing",
-    description: "Increases the piercing ability",
+    description:
+      "Increases the ability for your bullets to go through multiple enemies",
     costMultiplier: 2,
   },
   {
@@ -54,7 +56,7 @@ export const Upgrade = [
   {
     key: "burst",
     name: "Burst Shots",
-    description: "Shoots multiple shots at once",
+    description: "Shoot multiple shots at once",
     costMultiplier: 3,
   },
 ];
@@ -99,7 +101,9 @@ function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
 
   // Starts at 10. Increases by totalUpgrades and currentLevel. It should not go linear.
   return Math.floor(
-    (10 + totalUpgrades * 2 + currentLevel * 5) * upgradeData.costMultiplier
+    (10 + totalUpgrades * 2 * getDifficultyMultiplier(1) + currentLevel * 5) *
+      upgradeData.costMultiplier *
+      getDifficultyMultiplier(0.5)
   );
 }
 

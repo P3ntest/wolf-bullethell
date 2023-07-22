@@ -14,6 +14,7 @@ import { HealthComponent } from "./util";
 import { ItemComponent } from "./item";
 import { getUpgradeLevel } from "./upgrades";
 import { doGameOver } from "./player";
+import { getDifficultyMultiplier } from "./main";
 
 export const dogPrefab = new Prefab<{}>("Dog", (dog, {}) => {
   dog.addTag("dog");
@@ -108,11 +109,18 @@ export class DogController extends Component {
         );
       }, 1)
     );
+
+    const maxHealth =
+      (75 + 25 * getUpgradeLevel(this.entity.scene, "doggyHealth")) *
+      getDifficultyMultiplier(-1);
+
+    this.entity.requireComponent(HealthComponent).health = maxHealth;
   }
 
   onUpdate(props: ComponentUpdateProps): void {
     const maxHealth =
-      40 + 25 * getUpgradeLevel(this.entity.scene, "doggyHealth");
+      (75 + 25 * getUpgradeLevel(this.entity.scene, "doggyHealth")) *
+      getDifficultyMultiplier(-1);
     this.entity.requireComponent(HealthComponent).maxHealth = maxHealth;
 
     if (this.entity.requireComponent(HealthComponent).health <= 0) {

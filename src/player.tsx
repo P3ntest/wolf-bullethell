@@ -20,6 +20,7 @@ import { getUpgradeLevel } from "./upgrades";
 import { gameOverScreen } from "./screens";
 import { bloodSplatPrefab } from "./blood";
 import { playSound } from "./sound";
+import { getDifficultyMultiplier } from "./main";
 
 export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   player.addTag("player");
@@ -107,6 +108,14 @@ export class PlayerController extends Component {
 
   dead: boolean = false;
 
+  onAttach(): void {
+    const maxHealth =
+      (100 + getUpgradeLevel(this.entity.scene, "maxPlayerHealth") * 25) *
+      getDifficultyMultiplier(-0.7);
+
+    this.entity.requireComponent(HealthComponent).health = maxHealth;
+  }
+
   onUpdate(props: ComponentUpdateProps): void {
     if (Input.getKeyDown("k"))
       this.entity.requireComponent(HealthComponent).damage(10000);
@@ -119,7 +128,8 @@ export class PlayerController extends Component {
     if (this.dead) return;
 
     const maxHealth =
-      100 + getUpgradeLevel(this.entity.scene, "maxPlayerHealth") * 25;
+      (100 + getUpgradeLevel(this.entity.scene, "maxPlayerHealth") * 25) *
+      getDifficultyMultiplier(-0.7);
     this.entity.requireComponent(HealthComponent).maxHealth = maxHealth;
 
     const rb = this.entity.requireComponent(RigidBody2D);
@@ -219,7 +229,9 @@ export class PlayerController extends Component {
     if (other.entity.hasTag("item")) {
       const item = other.entity.requireComponent(ItemComponent);
       if (item.type === "healthPack") {
-        this.entity.requireComponent(HealthComponent).heal();
+        this.entity
+          .requireComponent(HealthComponent)
+          .heal(70 * getDifficultyMultiplier(-0.5));
         other.entity.destroy();
       } else if (item.type === "coin") {
         this.coins++;
