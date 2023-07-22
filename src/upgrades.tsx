@@ -20,7 +20,7 @@ export const Upgrade = [
     key: "maxPlayerHealth",
     name: "Max Health",
     description: "Increases your health",
-    costMultiplier: 0,
+    costMultiplier: 0.9,
   },
   {
     key: "doggyHealth",
