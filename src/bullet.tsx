@@ -68,7 +68,12 @@ export const bulletPrefab = new Prefab<BulletProps>(
             // if (other.entity.hasTag("friendly")) return;wd
 
             const damage =
-              (10 + getUpgradeLevel(this.entity.scene, "bulletDamage") * 3) *
+              (10 +
+                Math.pow(
+                  getUpgradeLevel(this.entity.scene, "bulletDamage"),
+                  1.5
+                ) *
+                  3) *
               getDifficultyMultiplier(other.entity.hasTag("dog") ? 0.7 : -0.7);
 
             const multiplier = Math.max(
