@@ -218,7 +218,7 @@ export class ZombieController extends Component {
     );
     let coinAmount = Math.round(
       Math.pow(this.props.size, 1.4) *
-        (1 + Math.random() * (1 + coinUpgradeLevel * 1.4))
+        (1 + Math.random() * (1 + Math.pow(coinUpgradeLevel, 0.9) * 1.4))
     );
 
     const maxCoins = 4;
@@ -404,7 +404,6 @@ const zombieTypes: { [key: string]: ZombieProps } = {
     health: 50,
     speed: 1.5,
     damage: 20,
-    color: "0",
     color: "190deg",
   },
   giant: {
