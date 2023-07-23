@@ -133,8 +133,14 @@ export class ZombieController extends Component {
 
     transform.setRotation(direction.getAngle());
 
+    const wave = getWave(
+      this.entity.scene.getSystem(ZombieSystem)!.currentWave
+    );
+
     rb.translate(
-      direction.multiplyScalar(0.1 * props.deltaTime * this.props.speed)
+      direction.multiplyScalar(
+        0.1 * props.deltaTime * this.props.speed * wave.speedMultiplier
+      )
     );
 
     if (this._knockBack) {
@@ -157,9 +163,6 @@ export class ZombieController extends Component {
       this.attackCoolDown <= 0
     ) {
       this.attackCoolDown = 1000;
-      const wave = getWave(
-        this.entity.scene.getSystem(ZombieSystem)!.currentWave
-      );
       target
         .requireComponent(HealthComponent)
         .damage(this.props.damage * wave.damageMultiplier);
@@ -215,7 +218,7 @@ export class ZombieController extends Component {
     );
     let coinAmount = Math.round(
       Math.pow(this.props.size, 1.4) *
-        (1 + Math.random() * (1 + coinUpgradeLevel * 2))
+        (1 + Math.random() * (1 + coinUpgradeLevel * 1.4))
     );
 
     const maxCoins = 4;
@@ -396,6 +399,14 @@ const zombieTypes: { [key: string]: ZombieProps } = {
     damage: 10,
     color: "0",
   },
+  blue: {
+    size: 1.5,
+    health: 50,
+    speed: 1.5,
+    damage: 20,
+    color: "0",
+    color: "190deg",
+  },
   giant: {
     size: 4,
     health: 150,
@@ -405,7 +416,7 @@ const zombieTypes: { [key: string]: ZombieProps } = {
   },
   boss: {
     size: 8,
-    health: 500,
+    health: 300,
     speed: 0.15,
     damage: 50,
     color: "0",
@@ -448,15 +459,16 @@ function getWave(wave: number): Wave {
     10 + Math.pow(wave, 1.4) * (3 * getDifficultyMultiplier(1))
   );
   const zombieWeights = {
-    normal: 3 + wave * 0.2,
+    normal: 4 + wave * 0.2,
     giant: 0.2 * wave,
-    fast: 0.1 * wave,
+    fast: 0.4 * wave,
     mutant: 0.2 * wave,
     boss: 0.01 * Math.pow(wave, 1.7),
+    blue: 0.2 * wave,
   };
 
   // const timeInWave = maxZombies * 2000;
-  const zombieSpawnInterval = 1000 * getDifficultyMultiplier(-2);
+  const zombieSpawnInterval = 1000 * getDifficultyMultiplier(-4);
 
   const damageMultiplier =
     getDifficultyMultiplier(0.7) + Math.pow(wave, 1.1) * 0.1;
@@ -464,12 +476,15 @@ function getWave(wave: number): Wave {
   const healthMultiplier =
     getDifficultyMultiplier(0.7) + Math.pow(wave, 1.6) * 0.3;
 
+  const speedMultiplier = getDifficultyMultiplier(0.7) + wave * 0.03;
+
   return {
     maxZombies,
     zombieWeights,
     zombieSpawnInterval,
     damageMultiplier,
     healthMultiplier,
+    speedMultiplier,
   };
 }
 
@@ -479,4 +494,5 @@ type Wave = {
   zombieSpawnInterval: number;
   damageMultiplier: number;
   healthMultiplier: number;
+  speedMultiplier: number;
 };
