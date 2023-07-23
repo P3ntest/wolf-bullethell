@@ -6,10 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zombies (Wolf Engine)</title>
   </head>
-  <body>
+  <body style="zoom: reset">
     <div id="game" class="cursor-crosshair"></div>
     <div id="ui" class="cursor-crosshair"></div>
     <div id="debug"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+  <script>
+    setInterval(() => {
+      const zoom = Math.round(window.devicePixelRatio * 100);
+      if (zoom !== 100) {
+        alert("Please set your browser zoom to 100%.");
+      }
+    }, 100);
+  </script>
 </html>

@@ -193,3 +193,19 @@ function MainMenu() {
     </div>
   );
 }
+
+window.addEventListener("keydown", (e) => {
+  // prevent zooming by ctrl + scroll and ctrl + +/-
+
+  if (e.ctrlKey && (e.key === "+" || e.key === "-")) {
+    e.preventDefault();
+  }
+});
+
+window.addEventListener("wheel", (e) => {
+  // prevent zooming by ctrl + scroll and ctrl + +/-
+
+  if (e.ctrlKey) {
+    e.preventDefault();
+  }
+});
