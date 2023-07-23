@@ -224,7 +224,7 @@ export class ZombieController extends Component {
     const maxCoins = 4;
     let coinValue = 1;
     if (coinAmount > maxCoins) {
-      coinValue = coinAmount / maxCoins;
+      coinValue = Math.round(coinAmount / maxCoins);
       coinAmount = maxCoins;
     }
 
