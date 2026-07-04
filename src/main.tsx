@@ -18,6 +18,8 @@ import { gameUiPrefab } from "./ui";
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
 
+import flesh_texture from "./assets/textures/flesh.jpg";
+
 Engine.init();
 
 let scene: Scene | null;
@@ -53,14 +55,14 @@ export const restartGame = () => {
 
   scene = new Scene();
   scene.setWorldRenderer(
-    new ReactPositionalRenderer(document.getElementById("game")!, "#222233")
+    new ReactPositionalRenderer(document.getElementById("game")!, "#222233"),
   );
   scene.addRenderer(new ReactUIRenderer(document.getElementById("ui")!));
   // scene.addRenderer(new DebugRenderer(document.getElementById("debug")!));
   scene.addSystem(
     new Physics2D({
       gravity: false,
-    })
+    }),
   );
   // scene.addSystem(new DebugRenderer(document.getElementById("debug")!));
   Input.init();
@@ -119,7 +121,7 @@ function MainMenu() {
     <div
       className="w-screen h-screen flex items-center justify-center"
       style={{
-        backgroundImage: "url('https://filterforge.com/filters/7459.jpg')",
+        backgroundImage: `url(${flesh_texture})`,
       }}
     >
       {openPage === "upgrades" ? (

@@ -14,6 +14,8 @@ import { getUpgradeLevel } from "./upgrades";
 import { playSound } from "./sound";
 import { getDifficultyMultiplier } from "./main";
 
+import bullet_texture from "./assets/textures/bullet.png";
+
 type BulletProps = { direction: Vector2; position: Vector2 };
 export const bulletPrefab = new Prefab<BulletProps>(
   "Bullet",
@@ -25,7 +27,7 @@ export const bulletPrefab = new Prefab<BulletProps>(
       new RigidBody2D(
         Bodies.circle(0, 0, 10, {
           isSensor: true,
-        })
+        }),
       ),
       new ReactRenderedComponent(
         () => (
@@ -34,12 +36,12 @@ export const bulletPrefab = new Prefab<BulletProps>(
               width: "8px",
               height: "20px",
               borderRadius: "100px",
-              backgroundImage: "url('https://i.redd.it/zqzgzpriobd61.png')",
+              backgroundImage: `url(${bullet_texture})`,
               backgroundSize: "contain",
             }}
           />
         ),
-        10
+        10,
       ),
       Component.fromMethods<
         BulletProps & { lifetime: number; pierced: number }
@@ -76,7 +78,7 @@ export const bulletPrefab = new Prefab<BulletProps>(
               0,
               other.entity.hasTag("dog")
                 ? 1 - getUpgradeLevel(this.entity.scene, "friendlyFire") * 0.1
-                : 1
+                : 1,
             );
 
             other.entity
@@ -100,10 +102,10 @@ export const bulletPrefab = new Prefab<BulletProps>(
             other.entity.requireComponent(ZombieController).damageFromPlayer();
           }
         },
-      })
+      }),
     );
 
     bullet.requireComponent(Transform2D).setPosition(position!);
     bullet.requireComponent(Transform2D).setRotation(direction!.getAngle());
-  }
+  },
 );

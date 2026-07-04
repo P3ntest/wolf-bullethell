@@ -16,6 +16,9 @@ import { getUpgradeLevel } from "./upgrades";
 import { doGameOver } from "./player";
 import { getDifficultyMultiplier } from "./main";
 
+import dog_texture from "./assets/textures/dog.png";
+import bone_texture from "./assets/textures/bone_target.png";
+
 export const dogPrefab = new Prefab<{}>("Dog", (dog, {}) => {
   dog.addTag("dog");
   dog.addTag("friendly");
@@ -33,12 +36,12 @@ export const dogPrefab = new Prefab<{}>("Dog", (dog, {}) => {
             width: 51 * scale + "px",
             height: 130 * scale + "px",
           }}
-          src="https://i.imgur.com/GwMoGB1.png"
+          src={dog_texture}
         />
       ),
-      10
+      10,
     ),
-    new DogController()
+    new DogController(),
   );
 });
 
@@ -59,7 +62,7 @@ export class DogController extends Component {
     rb.translate(direction.multiplyScalar(0.001 * deltaTime * distance));
 
     const targetAngle = direction.getDeltaAngle(
-      Vector2.fromAngle(transform.localRotation)
+      Vector2.fromAngle(transform.localRotation),
     );
 
     const newAngle = transform.localRotation + targetAngle * 0.01 * deltaTime;
@@ -103,11 +106,11 @@ export class DogController extends Component {
               height: 30 + "px",
               opacity: visible ? 1 : 0,
             }}
-            src="https://www.pngplay.com/wp-content/uploads/2/Bone-PNG-Pic-Background.png"
+            src={bone_texture}
             alt=""
           />
         );
-      }, 1)
+      }, 1),
     );
 
     const maxHealth =
@@ -131,13 +134,13 @@ export class DogController extends Component {
     const dogTreat = this.entity.scene
       .getAllEntities()
       .find(
-        (entity) => entity.getComponent(ItemComponent)?.type === "dogTreat"
+        (entity) => entity.getComponent(ItemComponent)?.type === "dogTreat",
       );
 
     if (dogTreat) {
       this.followLogic(
         dogTreat.requireComponent(Transform2D).getGlobalPosition(),
-        props.deltaTime
+        props.deltaTime,
       );
     } else if (this.target) {
       this.followLogic(this.target, props.deltaTime);
@@ -162,7 +165,7 @@ export class DogController extends Component {
 
     if (Input.getKeyDown("q")) {
       const pos = this.entity.scene.worldRenderer.transformScreenToWorld(
-        Vector2.fromObject(Input.getMousePosition())
+        Vector2.fromObject(Input.getMousePosition()),
       );
       this.target = pos;
     }

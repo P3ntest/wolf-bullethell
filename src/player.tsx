@@ -22,6 +22,8 @@ import { bloodSplatPrefab } from "./blood";
 import { playSound } from "./sound";
 import { getDifficultyMultiplier } from "./main";
 
+import player_idle from "./assets/textures/player_idle.gif";
+
 export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
   player.addTag("player");
   player.addTag("friendly");
@@ -37,8 +39,7 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
             width: "60px",
             height: "60px",
             borderRadius: "0px",
-            backgroundImage:
-              "url('https://opengameart.org/sites/default/files/preview_idle.gif')",
+            backgroundImage: `url(${player_idle})`,
             backgroundSize: "cover",
             transform: "rotate(-90deg)",
           }}
@@ -46,7 +47,7 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
       );
     }, 10),
     new HealthComponent(100),
-    new PlayerController()
+    new PlayerController(),
   );
 
   const bulletSpawner = player
@@ -83,7 +84,7 @@ export const playerPrefab = new Prefab<{}>("Player", (player, {}) => {
 
         // Make camera follow player with a delay
       },
-    })
+    }),
   );
 });
 
@@ -136,7 +137,7 @@ export class PlayerController extends Component {
 
     const direction = new Vector2(
       Input.getAxis("Horizontal"),
-      Input.getAxis("Vertical")
+      Input.getAxis("Vertical"),
     );
 
     const movement = direction
@@ -149,11 +150,11 @@ export class PlayerController extends Component {
     const mousePos = Input.getMousePosition();
     const worldMousePos =
       this.entity.scene.worldRenderer.transformScreenToWorld(
-        Vector2.fromObject(mousePos)
+        Vector2.fromObject(mousePos),
       );
 
     const currentVector = worldMousePos.subtract(
-      this.entity.requireComponent(Transform2D).getGlobalPosition()
+      this.entity.requireComponent(Transform2D).getGlobalPosition(),
     );
 
     this.entity
@@ -218,7 +219,7 @@ export class PlayerController extends Component {
     })!;
 
     const currentVector = target.subtract(
-      bulletSpawner.requireComponent(Transform2D).getGlobalPosition()
+      bulletSpawner.requireComponent(Transform2D).getGlobalPosition(),
     );
 
     bulletPrefab.instantiate(this.entity.scene, {

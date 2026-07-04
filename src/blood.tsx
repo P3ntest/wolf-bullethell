@@ -7,6 +7,8 @@ import {
   Vector2,
 } from "@p3ntest/wolf-engine";
 
+import blood_texture from "./assets/textures/blood.png";
+
 export const bloodSplatPrefab = new Prefab<{
   x: number;
   y: number;
@@ -23,14 +25,13 @@ export const bloodSplatPrefab = new Prefab<{
             width: size * currentSize + "px",
             height: size * currentSize + "px",
             opacity: opacity,
-            backgroundImage:
-              "url('https://www.freeiconspng.com/thumbs/blood-splatter-png/blood-splatter-png-image-0.png')",
+            backgroundImage: `url(${blood_texture})`,
             backgroundSize: "cover",
           }}
         />
       );
     }, 2),
-    new BloodSplatComponent()
+    new BloodSplatComponent(),
   );
 
   blood.requireComponent(Transform2D).setPosition(new Vector2(x, y));

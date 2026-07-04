@@ -22,6 +22,8 @@ import { Upgrade, getUpgradeLevel, upgradeStat } from "./upgrades";
 import { playSound, playZombieSound } from "./sound";
 import { getDifficultyMultiplier } from "./main";
 
+import zombie_move from "./assets/textures/zombie_move.gif";
+
 interface ZombieProps {
   size: number;
   health: number;
@@ -45,7 +47,7 @@ export const zombiePrefab = new Prefab<
     new RigidBody2D(
       Bodies.circle(0, 0, (pixelSize / 2) * 0.8, {
         mass: 10 * size * size * size, // mass is proportional to size cubed (volume)
-      })
+      }),
     ),
     new HealthComponent(health * (props.healthMultiplier ?? 0)),
     new ReactRenderedComponent(
@@ -54,15 +56,14 @@ export const zombiePrefab = new Prefab<
           style={{
             width: pixelSize + "px",
             height: pixelSize + "px",
-            backgroundImage:
-              "url('https://opengameart.org/sites/default/files/export_move.gif')",
+            backgroundImage: `url(${zombie_move})`,
             backgroundSize: "cover",
             transform: "rotate(-90deg)",
             filter: `hue-rotate(${color})`,
           }}
         />
       ),
-      10
+      10,
     ),
     new ZombieController({
       size,
@@ -70,7 +71,7 @@ export const zombiePrefab = new Prefab<
       speed,
       damage,
       color,
-    })
+    }),
   );
 });
 
@@ -134,13 +135,13 @@ export class ZombieController extends Component {
     transform.setRotation(direction.getAngle());
 
     const wave = getWave(
-      this.entity.scene.getSystem(ZombieSystem)!.currentWave
+      this.entity.scene.getSystem(ZombieSystem)!.currentWave,
     );
 
     rb.translate(
       direction.multiplyScalar(
-        0.1 * props.deltaTime * this.props.speed * wave.speedMultiplier
-      )
+        0.1 * props.deltaTime * this.props.speed * wave.speedMultiplier,
+      ),
     );
 
     if (this._knockBack) {
@@ -214,11 +215,11 @@ export class ZombieController extends Component {
 
     const coinUpgradeLevel = getUpgradeLevel(
       this.entity.scene,
-      "coinMultiplier"
+      "coinMultiplier",
     );
     let coinAmount = Math.round(
       Math.pow(this.props.size, 1.4) *
-        (1 + Math.random() * (1 + Math.pow(coinUpgradeLevel, 0.9) * 1.4))
+        (1 + Math.random() * (1 + Math.pow(coinUpgradeLevel, 0.9) * 1.4)),
     );
 
     const maxCoins = 4;
@@ -232,7 +233,7 @@ export class ZombieController extends Component {
       spawnCoin(
         this.entity.scene,
         this.entity.requireComponent(Transform2D).getGlobalPosition(),
-        coinValue
+        coinValue,
       );
     }
 
@@ -252,7 +253,7 @@ export class ZombieController extends Component {
         (1 + controller.currentWave * 0.2) *
         getDifficultyMultiplier(1.1) *
         (dogExists ? 1 : 0.5) *
-        100
+        100,
     );
 
     controller.currentScore += scoreGained;
@@ -386,7 +387,7 @@ export class ZombieSystem extends System {
     zombie
       .requireComponent(Transform2D)
       .setPosition(
-        spawnPoint.requireComponent(Transform2D).getGlobalPosition()
+        spawnPoint.requireComponent(Transform2D).getGlobalPosition(),
       );
   }
 }
@@ -455,7 +456,7 @@ function getRandomZombie(weights: {
 function getWave(wave: number): Wave {
   wave = wave - 1;
   const maxZombies = Math.floor(
-    10 + Math.pow(wave, 1.4) * (3 * getDifficultyMultiplier(1))
+    10 + Math.pow(wave, 1.4) * (3 * getDifficultyMultiplier(1)),
   );
   const zombieWeights = {
     normal: 4 + wave * 0.2,

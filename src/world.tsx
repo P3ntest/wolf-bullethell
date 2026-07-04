@@ -8,6 +8,9 @@ import {
 import { Bodies } from "matter-js";
 import { enemySpawnPointPrefab } from "./zombie";
 
+import floor_texture from "./assets/textures/floor.jpg";
+import wall_texture from "./assets/textures/wall.jpg";
+
 export const worldPrefab = new Prefab<{}>("World", (entity, {}) => {
   entity.addComponent(new Transform2D());
   const floor = entity.createEntity();
@@ -19,11 +22,10 @@ export const worldPrefab = new Prefab<{}>("World", (entity, {}) => {
         style={{
           width: "2000px",
           height: "2000px",
-          backgroundImage:
-            "url('https://www.textures.com/system/gallery/photos/Concrete/Floors/52062/ConcreteFloors0046_1_350.jpg')",
+          backgroundImage: `url(${floor_texture})`,
         }}
       />
-    ))
+    )),
   );
 
   wallPrefab.instantiate(entity, {
@@ -74,19 +76,18 @@ const wallPrefab = new Prefab<{
   entity.addComponents(
     new Transform2D(),
     new RigidBody2D(
-      Bodies.rectangle(0, 0, width!, height!, { isStatic: true })
+      Bodies.rectangle(0, 0, width!, height!, { isStatic: true }),
     ),
     new ReactRenderedComponent(() => (
       <div
         style={{
           width: `${width}px`,
           height: `${height}px`,
-          backgroundImage:
-            "url('https://img.freepik.com/premium-vector/seamless-texture-gray-geometric-stone-background-stone-wall-tiles-vector-illustration-user-interface-game-element_172107-1973.jpg?w=2000')",
+          backgroundImage: `url(${wall_texture})`,
           backgroundSize: "contain",
         }}
       />
-    ))
+    )),
   );
   entity.addTag("wall");
   entity.requireComponent(Transform2D).setPosition(new Vector2(x, y));

@@ -9,6 +9,8 @@ import {
 import { PlayerController } from "./player";
 import { gameDifficulty, getDifficultyMultiplier } from "./main";
 
+import coin_texture from "./assets/textures/coin.png";
+
 export const Upgrade = [
   {
     key: "fireRate",
@@ -73,12 +75,12 @@ export const upgradeSystemPrefab = new Prefab(
     upgradeSystem.addTag("upgradeSystem");
 
     upgradeSystem.addComponent(new UpgradeSystem());
-  }
+  },
 );
 
 export function upgradeStat(
   scene: Scene,
-  upgrade: keyof typeof Upgrade | string
+  upgrade: keyof typeof Upgrade | string,
 ) {
   const upgradeSystem = scene.getEntityByTag("upgradeSystem")!;
   upgradeSystem
@@ -88,7 +90,7 @@ export function upgradeStat(
 
 export function getUpgradeLevel(
   scene: Scene,
-  upgrade: keyof typeof Upgrade | string
+  upgrade: keyof typeof Upgrade | string,
 ) {
   const upgradeSystem = scene.getEntityByTag("upgradeSystem")!;
   return upgradeSystem
@@ -100,7 +102,7 @@ function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
   const currentLevel = getUpgradeLevel(scene, upgrade);
   const totalUpgrades = Object.values(
     scene.getEntityByTag("upgradeSystem")!.requireComponent(UpgradeSystem)
-      .upgradeLevels
+      .upgradeLevels,
   ).reduce((a, b) => a + b, 0);
 
   const upgradeData = Upgrade.find((u) => u.key === upgrade)!;
@@ -113,7 +115,7 @@ function getUpgradeCostAtLevel(scene: Scene, upgrade: keyof typeof Upgrade) {
       totalUpgrades * 2 * getDifficultyMultiplier(1) +
       currentLevel * 5 * selfMultiplier) *
       upgradeData.costMultiplier *
-      getDifficultyMultiplier(0.5)
+      getDifficultyMultiplier(0.5),
   );
 }
 
@@ -170,7 +172,7 @@ export class UpgradeSystem extends Component {
                   const level = getUpgradeLevel(this.entity.scene, upgrade.key);
                   const cost = getUpgradeCostAtLevel(
                     this.entity.scene,
-                    upgrade.key as keyof typeof Upgrade
+                    upgrade.key as keyof typeof Upgrade,
                   );
                   return (
                     <button
@@ -205,18 +207,12 @@ export class UpgradeSystem extends Component {
           position: {
             anchor: "center-right",
           },
-        }
-      )
+        },
+      ),
     );
   }
 }
 
 function CoinIcon() {
-  return (
-    <img
-      className="w-5 h-5"
-      src="https://static.vecteezy.com/system/resources/previews/019/046/339/original/gold-coin-money-symbol-icon-png.png"
-      alt=""
-    />
-  );
+  return <img className="w-5 h-5" src={coin_texture} alt="" />;
 }

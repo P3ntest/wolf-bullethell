@@ -9,6 +9,8 @@ import {
 import { PlayerController } from "./player";
 import { playCoinSound } from "./sound";
 
+import coin_texture from "./assets/textures/coin.png";
+
 export function spawnCoin(scene: Scene, position: Vector2, value: number) {
   const coin = scene.createEntity();
 
@@ -27,11 +29,11 @@ export function spawnCoin(scene: Scene, position: Vector2, value: number) {
             width: 20 * scale + "px",
             height: 20 * scale + "px",
           }}
-          src="https://static.vecteezy.com/system/resources/previews/019/046/339/original/gold-coin-money-symbol-icon-png.png"
+          src={coin_texture}
         />
       );
     }, 2),
-    new CoinComponent(target, value)
+    new CoinComponent(target, value),
   );
 
   coin.requireComponent(Transform2D).setPosition(position);
@@ -98,11 +100,11 @@ export class CoinComponent extends Component {
         .filter((coin) => coin !== this.entity)
         .sort((a, b) => {
           const aDist = this.distanceTo(
-            a.requireComponent(Transform2D).getGlobalPosition()
+            a.requireComponent(Transform2D).getGlobalPosition(),
           );
 
           const bDist = this.distanceTo(
-            b.requireComponent(Transform2D).getGlobalPosition()
+            b.requireComponent(Transform2D).getGlobalPosition(),
           );
           return aDist - bDist;
         })[0];
